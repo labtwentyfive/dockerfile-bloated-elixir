@@ -3,16 +3,20 @@ FROM elixir:1.6-slim
 ARG WKHTMLTOPDF_VERSION=0.12.4
 ARG WKHTMLTOPDF_CHECKSUM=049b2cdec9a8254f0ef8ac273afaf54f7e25459a273e27189591edc7d7cf29db
 
+# libssl1.1 for Erlang, otherwise mix local.hex will fail
+# Some mix tasks require git for dependency checks
+RUN set -xe; \
+  apt-get update; \
+  apt-get install -y --no-install-recommends \
+    git \
+    libssl1.1 \
+  ; \
+  rm -rf /var/lib/apt/lists/*
+
 # Install Rebar and Hex
 RUN set -xe; \
   mix local.rebar --force;\
   mix local.hex --force;
-
-# Some mix tasks require git for dependency checks
-RUN set -xe; \
-  apt-get update; \
-  apt-get install -y --no-install-recommends git; \
-  rm -rf /var/lib/apt/lists/*
 
 # Install wkhtmltopdf
 RUN set -xe; \
